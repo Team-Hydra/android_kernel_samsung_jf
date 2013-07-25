@@ -82,6 +82,14 @@ unsigned int kthermal_limit = 0;
 
 extern void apenable_auto_hotplug(bool state);
 
+static bool never_set[10];
+
+struct work_struct set_cpu_min_max_work;
+static unsigned int work_speed_min;
+static unsigned int work_speed_max;
+static unsigned int work_speed_core_start;
+static struct workqueue_struct *dbs_wq;
+
 /**
  * The "cpufreq driver" - the arch- or hardware-dependent low
  * level driver of CPUFreq support, and its spinlock. This lock
@@ -491,6 +499,47 @@ static ssize_t store_##file_name					\
 	return ret ? ret : count;					\
 }
 
+static void __cpuinit set_cpu_min_max_work_fn(struct work_struct *work)
+{
+	if (work_speed_min > 0 || work_speed_max > 0)
+	{
+		struct cpufreq_policy new_policy;
+		int cpu, ret;
+		for (cpu = work_speed_core_start; cpu < CPUS_AVAILABLE; cpu++)
+		{
+			if (!cpu_online(cpu)) cpu_up(cpu);
+			usleep(50);
+			if (cpu_online(cpu))
+			{
+				struct cpufreq_policy *policyorig = cpufreq_cpu_get_sysfs(cpu);
+				if (policyorig)
+				{
+					ret = cpufreq_get_policy(&new_policy, cpu);
+					if (work_speed_min)
+						new_policy.min = work_speed_min;
+					if (work_speed_max)
+						new_policy.max = work_speed_max;
+					pr_alert("SET EXTRA CORES 1 - %d - %d - %d - %d - %d - %d - %d", cpu, policyorig->cpu, new_policy.min, new_policy.max, policyorig->min, policyorig->max, policyorig->user_policy.max);
+					__cpufreq_set_policy(policyorig, &new_policy);
+					if (work_speed_min)
+						policyorig->user_policy.min = policyorig->min;
+					if (work_speed_max)
+						policyorig->user_policy.max = policyorig->max;
+					pr_alert("SET EXTRA CORES 2 - %d - %d - %d - %d - %d - %d - %d", cpu, policyorig->cpu, new_policy.min, new_policy.max, policyorig->min, policyorig->max, policyorig->user_policy.max);
+				}
+			}				
+		}
+	}
+}
+
+static void set_cpu_min_max(unsigned int min, unsigned int max, unsigned int core_start)
+{
+	work_speed_min = min;
+	work_speed_max = max;
+	work_speed_core_start = core_start;
+	queue_work_on(0, dbs_wq, &set_cpu_min_max_work);
+}
+
 static ssize_t __ref store_scaling_min_freq(struct cpufreq_policy *policy, const char *buf, size_t count)
 {
 	unsigned int ret = -EINVAL;
@@ -516,16 +565,8 @@ static ssize_t __ref store_scaling_min_freq(struct cpufreq_policy *policy, const
 	policy->user_policy.min = policy->min;
 
 	//Set extra CPU cores to same speed
-	for (cpu = 1; cpu < CPUS_AVAILABLE; cpu++)
-	{
-		if (!cpu_online(cpu)) cpu_up(cpu);
-		if (&trmlpolicy[cpu] != NULL)
-		{
-			ret = cpufreq_get_policy(&new_policy, cpu);
-			new_policy.min = value;
-			__cpufreq_set_policy(&trmlpolicy[cpu], &new_policy);
-		}
-	}
+	if (policy->cpu == 0)
+		set_cpu_min_max(value, 0, 1);
 	
 	Lbluetooth_scaling_mhz_orig = value;
 	
@@ -558,16 +599,8 @@ static ssize_t __ref store_scaling_max_freq(struct cpufreq_policy *policy, const
 		policy->user_policy.max = policy->max;
 		
 		//Set extra CPU cores to same speed
-		for (cpu = 1; cpu < CPUS_AVAILABLE; cpu++)
-		{
-			if (!cpu_online(cpu)) cpu_up(cpu);
-			if (&trmlpolicy[cpu] != NULL)
-			{
-				ret = cpufreq_get_policy(&new_policy, cpu);
-				new_policy.max = value;
-				__cpufreq_set_policy(&trmlpolicy[cpu], &new_policy);
-			}				
-		}
+		if (policy->cpu == 0)
+			set_cpu_min_max(0, value, 1);
 		
 		Lscreen_off_scaling_mhz_orig = value;
 	}
@@ -1155,7 +1188,7 @@ void set_bluetooth_state(unsigned int val)
 		{
 			bluetooth_scaling_mhz_active = true;
 			value = Lbluetooth_scaling_mhz;
-			cpufreq_set_limit_defered(USER_MIN_START, value);
+			set_cpu_min_max(value, 0, 0);
 		}
 		else
 		{
@@ -2782,6 +2815,9 @@ int cpufreq_unregister_driver(struct cpufreq_driver *driver)
 	cpufreq_driver = NULL;
 	spin_unlock_irqrestore(&cpufreq_driver_lock, flags);
 
+	cancel_work_sync(&set_cpu_min_max_work);
+	destroy_workqueue(dbs_wq);
+	
 	return 0;
 }
 EXPORT_SYMBOL_GPL(cpufreq_unregister_driver);
@@ -2802,6 +2838,13 @@ static int __init cpufreq_core_init(void)
 	BUG_ON(!cpufreq_global_kobject);
 	register_syscore_ops(&cpufreq_syscore_ops);
 
+	dbs_wq = alloc_workqueue("cpufreq_coreminmax_wq", WQ_HIGHPRI, 0);
+	if (!dbs_wq) {
+		printk(KERN_ERR "Failed to create cpufreq_coreminmax_wq workqueue\n");
+		return -EFAULT;
+	}
+	INIT_WORK(&set_cpu_min_max_work, set_cpu_min_max_work_fn);
+	
 	return 0;
 }
 core_initcall(cpufreq_core_init);
