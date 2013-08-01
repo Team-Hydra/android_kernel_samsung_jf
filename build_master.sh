@@ -1,5 +1,5 @@
 #!/bin/sh
-export PLATFORM="AOSP"
+export PLATFORM="TW"
 export MREV="JB4.2"
 export CURDATE=`date "+%m.%d.%Y"`
 if [ "$RLSVER" != "" ]; then
