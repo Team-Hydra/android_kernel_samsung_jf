@@ -9,6 +9,7 @@ export MUXEDNAMELONG="ChronicKernel-$MREV-$PLATFORM-$CARRIER-$CURDATE"
 fi
 export MUXEDNAMESHRT="ChronicKernel-$MREV-$PLATFORM-$CARRIER*"
 export KTVER="-$MUXEDNAMELONG"
+export SRC_ROOT=`readlink -f ../../..`
 export KERNELDIR=`readlink -f .`
 export PARENT_DIR=`readlink -f ..`
 export INITRAMFS_DEST=$KERNELDIR/kernel/usr/initramfs
@@ -20,7 +21,7 @@ export USE_CCACHE=1
 #Enable FIPS mode
 export USE_SEC_FIPS_MODE=true
 export ARCH=arm
-export CROSS_COMPILE=/home/albinoman887/android/system/prebuilt/linux-x86/toolchain/linaro/bin/arm-eabi-
+export CROSS_COMPILE=$SRC_ROOT/prebuilt/linux-x86/toolchain/linaro/bin/arm-eabi-
 
 time_start=$(date +%s.%N)
 
