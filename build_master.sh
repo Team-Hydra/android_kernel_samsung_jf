@@ -60,7 +60,14 @@ echo "Release version number set - disabling LOCALVERSION_AUTO"
 sed -i 's,CONFIG_LOCALVERSION_AUTO=y,# CONFIG_LOCALVERSION_AUTO is not set,' .config
 fi
 
+HOST_CHECK=`uname -n`
+if [ $HOST_CHECK = 'chronic-buildbox' ]; then
+	echo "detected build server...running make with 24 jobs"
+	make -j24
+else
+	echo "Others! - " + $HOST_CHECK
 	make -j`grep 'processor' /proc/cpuinfo | wc -l`
+fi;
 
 echo "Copy modules to Package"
 cp -a $(find . -name *.ko -print |grep -v initramfs) $PACKAGEDIR/system/lib/modules/
