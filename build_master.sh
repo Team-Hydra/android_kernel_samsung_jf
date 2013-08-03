@@ -1,6 +1,6 @@
 #!/bin/sh
 export PLATFORM="TW"
-export MREV="JB4.2"
+export MREV="JB4.3"
 export CURDATE=`date "+%m.%d.%Y"`
 if [ "$RLSVER" != "" ]; then
 export MUXEDNAMELONG="ChronicKernel-$MREV-$PLATFORM-$CARRIER-$RLSVER"
@@ -13,7 +13,7 @@ export SRC_ROOT=`readlink -f ../../..`
 export KERNELDIR=`readlink -f .`
 export PARENT_DIR=`readlink -f ..`
 export INITRAMFS_DEST=$KERNELDIR/kernel/usr/initramfs
-export INITRAMFS_SOURCE=`readlink -f ..`/Ramdisks/$PLATFORM"_"$CARRIER
+export INITRAMFS_SOURCE=`readlink -f ..`/Ramdisks/$PLATFORM"_"$CARRIER"4.3"
 export CONFIG_$PLATFORM_BUILD=y
 export PACKAGEDIR=$KERNELDIR/Packages/$PLATFORM
 # enable ccache
