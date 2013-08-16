@@ -4167,6 +4167,9 @@ static void synaptics_rmi4_early_suspend(struct early_suspend *h)
 			container_of(h, struct synaptics_rmi4_data,
 			early_suspend);
 
+	//pr_alert("SCREEN POWER OFF");
+	//set_screen_on_off_mhz(false);
+	
 	if (rmi4_data->stay_awake) {
 		rmi4_data->staying_awake = true;
 		return;
@@ -4202,6 +4205,8 @@ static void synaptics_rmi4_late_resume(struct early_suspend *h)
 			container_of(h, struct synaptics_rmi4_data,
 			early_suspend);
 	int retval;
+	//pr_alert("SCREEN POWER ON");
+	//set_screen_on_off_mhz(true);
 
 	if (rmi4_data->staying_awake)
 		return;
