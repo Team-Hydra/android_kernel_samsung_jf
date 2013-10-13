@@ -21,7 +21,8 @@ export USE_CCACHE=1
 #Enable FIPS mode
 export USE_SEC_FIPS_MODE=true
 export ARCH=arm
-export CROSS_COMPILE=$SRC_ROOT/prebuilt/linux-x86/toolchain/linaro/bin/arm-eabi-
+#export CROSS_COMPILE=$SRC_ROOT/prebuilt/linux-x86/toolchain/linaro/bin/arm-eabi-
+export CROSS_COMPILE=$SRC_ROOT/prebuilt/linux-x86/toolchain/linaro-arm-a15/bin/arm-cortex_a15-linux-gnueabihf-
 
 time_start=$(date +%s.%N)
 
