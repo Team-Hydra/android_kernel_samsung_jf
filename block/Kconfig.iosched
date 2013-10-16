@@ -86,20 +86,6 @@ config IOSCHED_VR
 	  Requests are chosen according to SSTF with a penalty of rev_penalty
 	  for switching head direction.
 
-config IOSCHED_ZEN
-	tristate "Zen I/O scheduler"
-	default y
-	---help---
-	  FCFS, dispatches are back-inserted, deadlines ensure fairness.
-	  Should work best with devices where there is no travel delay.
-
-config IOSCHED_FIFO
-	bool
-	default y
-	---help---
-	  Fifo is similar to no-op I/O scheduler and it's a minimal scheduler that does basic merging
-	  and sorting. Ported from: https://github.com/AndroidDeveloperAlliance/ZenKernel_TUNA/blob/master/block/fifo-iosched.c
-
 config IOSCHED_BFQ
 	tristate "BFQ I/O scheduler"
 	depends on EXPERIMENTAL
