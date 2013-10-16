@@ -73,12 +73,6 @@ config CPU_FREQ_DEFAULT_GOV_ADAPTIVE
 	  'adaptive' governor for latency-sensitive workloads and demanding
 	  performance.
 
-config CPU_FREQ_DEFAULT_GOV_ASSWAX
- 	 bool "asswax"
-  	 select CPU_FREQ_GOV_ASSWAX
-  	 help
-	  Use as default governor
-
 config CPU_FREQ_DEFAULT_GOV_BADASS
 	bool "badass"
 	select CPU_FREQ_GOV_BADASS
@@ -323,12 +317,6 @@ config CPU_FREQ_GOV_ADAPTIVE
 	  For details, take a look at linux/Documentation/cpu-freq.
 
 	  If in doubt, say N.
-
-config CPU_FREQ_GOV_ASSWAX
-	tristate "'asswax' cpufreq governor"
-	depends on CPU_FREQ
-	help
-	  Use as default governors
 
 config CPU_FREQ_GOV_SMARTMAX
 	tristate "'smartmax' cpufreq policy governor"
