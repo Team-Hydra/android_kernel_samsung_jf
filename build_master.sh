@@ -1,6 +1,6 @@
 #!/bin/sh
 export PLATFORM="TW"
-export MREV="JB4.3"
+export MREV="KK4.4"
 export CURDATE=`date "+%m.%d.%Y"`
 if [ "$RLSVER" != "" ]; then
 export MUXEDNAMELONG="ChronicKernel-$MREV-$PLATFORM-$CARRIER-$RLSVER"
