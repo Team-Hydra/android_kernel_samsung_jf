@@ -31,6 +31,7 @@ rm -rf $PACKAGEDIR/* > /dev/null 2>&1
 echo "Setup Package Directory"
 mkdir -p $PACKAGEDIR/system/lib/modules
 mkdir -p $PACKAGEDIR/system/etc
+mkdir -p $PACKAGEDIR/system/bin
 
 echo "Create initramfs dir"
 mkdir -p $INITRAMFS_DEST
@@ -74,6 +75,12 @@ cp -a $(find . -name *.ko -print |grep -v initramfs) $PACKAGEDIR/system/lib/modu
 if [ $ADD_CHRONIC_CONFIG = 'Y' ]; then
 	cp Packages/chronic-config.sh $PACKAGEDIR/system/etc/chronic-config.sh
 fi;
+
+echo "copying auto-loki files"
+        cp LOKI/loki_bootloaders $PACKAGEDIR/system/etc/
+        cp LOKI/loki.sh $PACKAGEDIR/system/bin/
+        cp LOKI/loki_flash $PACKAGEDIR/system/bin/
+        cp LOKI/loki_patch $PACKAGEDIR/system/bin/
 
 if [ -e $KERNELDIR/arch/arm/boot/zImage ]; then
 	echo "Copy zImage to Package"
