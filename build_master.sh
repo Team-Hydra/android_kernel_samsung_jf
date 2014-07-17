@@ -78,9 +78,8 @@ fi;
 
 echo "copying auto-loki files"
         cp LOKI/loki_bootloaders $PACKAGEDIR/system/etc/
-        cp LOKI/loki.sh $PACKAGEDIR/system/bin/
-        cp LOKI/loki_flash $PACKAGEDIR/system/bin/
-        cp LOKI/loki_patch $PACKAGEDIR/system/bin/
+        cp LOKI/loki.sh $PACKAGEDIR/system/etc/
+        cp LOKI/loki_tool $PACKAGEDIR/system/bin/
 
 if [ -e $KERNELDIR/arch/arm/boot/zImage ]; then
 	echo "Copy zImage to Package"
